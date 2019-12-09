@@ -11,42 +11,41 @@ namespace CouponDistribution.DataModel {
         [Key]
         //[DatabaseGenerated(DatabaseGeneratedOption.None)]
         [StringLength(20)]
-        [Column("username")]
-        public string username { get; set; }
+        [Column("Username")]
+        public string Username { get; set; }
 
         [StringLength(32)]
-        [Column("password")]
-        public string password { get; set; }
+        [Column("Password")]
+        public string Password { get; set; }
 
         [MaxLength(8)]
-        [Column("kind")]
-        public string kind { get; set; }
+        [Column("Kind")]
+        public string Kind { get; set; }
 
-        public string auth { get; set; }
-        public User(string username, string password, string kind) {
-            this.username = username;
-            this.password = password;
-            this.kind = kind;
-            this.auth = null;
-        }
+        public string Authorization { get; set; }
 
         public User() {
-            this.username = null;
-            this.password = null;
-            this.kind = null;
-            this.auth = null;
+            Username = null;
+            Password = null;
+            Kind = null;
+            Authorization = null;
+        }
+
+        public User(string username, string password, string kind) {
+            Username = username;
+            Password = password;
+            Kind = kind;
+            Authorization = null;
         }
 
         public User(User user) {
-            this.username = user.username;
-            this.password = user.password;
-            this.kind = user.kind;
-            this.auth = null;
+            Username = user.Username;
+            Password = user.Password;
+            Kind = user.Kind;
+            Authorization = null;
         }
 
-        public void Encryption() {
-            this.password = Md5Hash(this.password);
-        }
+        public void Encryption() => Password = Md5Hash(this.Password);
 
         // 32位MD5加密
         public string Md5Hash(string input) {

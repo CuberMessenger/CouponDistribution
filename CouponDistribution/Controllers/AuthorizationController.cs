@@ -15,40 +15,36 @@ namespace CouponDistribution.Controllers {
     public class AuthorizationController : ControllerBase {
         private DatabaseContext Context;
 
-        public AuthorizationController(DatabaseContext _context) {
-            Context = _context;
-        }
+        public AuthorizationController(DatabaseContext context) => Context = context;
 
         [HttpPost]
-
         public IActionResult Login([FromBody]User user) {
-            if (user.username == null || user.username.Length == 0) {
+            if (string.IsNullOrEmpty(user.Username)) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "The username can not be empty!" } });
             }
-            if (user.password == null || user.password.Length == 0) {
+            if (string.IsNullOrEmpty(user.Password)) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "The password can not be empty!" } });
             }
 
             user.Encryption();
-            var _user = Context.Users.FirstOrDefault(r => r.username == user.username);
+            var _user = Context.Users.FirstOrDefault(r => r.Username == user.Username);
             if (_user == null) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Can not find the username." } });
             }
-            else if (_user.password != user.password) {
+            else if (_user.Password != user.Password) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Wrong password." } });
             }
             else {
                 //Random random = new Random();
                 //_user.auth = _user.Md5Hash(_user.password + random.Next().ToString());
 
-                _user.auth = _user.Md5Hash(_user.username + _user.password + _user.username);
+                _user.Authorization = _user.Md5Hash(_user.Username + _user.Password + _user.Username);
                 Context.Users.Update(_user);
                 Context.SaveChanges();
 
                 //将token写入返回的头部
-                Response.Headers.Append("Authorization", _user.auth);
-
-                return Ok(new Dictionary<string, string> { { "kind", _user.kind } });
+                Response.Headers.Append("Authorization", _user.Authorization);
+                return Ok(new Dictionary<string, string> { { "kind", _user.Kind } });
             }
         }
     }

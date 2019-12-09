@@ -16,54 +16,52 @@ namespace CouponDistribution.Controllers {
         private DatabaseContext Context;
 
         //在构造函数时载入数据库
-        public UsersController(DatabaseContext _context) {
-            Context = _context;
+        public UsersController(DatabaseContext context) {
+            Context = context;
         }
 
         //辅助，显示所有用户
         [HttpGet]
-        public IActionResult Get() {
-            return Ok(Context.Users.ToList());
-        }
+        public IActionResult Get() => Ok(Context.Users.ToList());
 
         [HttpPost]
         //[ValidateAntiForgeryToken]
         //创建用户
         public IActionResult Post([FromBody]User user) {
-
-            if (user.username == null || user.username.Length == 0) {
+            if (string.IsNullOrEmpty(user.Username)) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The username can not be empty!" } });
             }
-            else if (user.username.Length > 20) {
+            if (user.Username.Length > 20) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The length of username can not be larger than 20!" } });
             }
-            var _user = Context.Users.FirstOrDefault(r => r.username == user.username);
+
+            var _user = Context.Users.FirstOrDefault(r => r.Username == user.Username);
             if (_user != null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The username had already been registered." } });
             }
 
-            if (user.password == null || user.password.Length == 0) {
+            if (string.IsNullOrEmpty(user.Password)) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The password can not be empty!" } });
             }
 
-            if (user.kind == null || user.kind.Length == 0) {
+            if (string.IsNullOrEmpty(user.Kind)) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The type of user can not be empty!" } });
             }
-            else if (user.kind != "saler" && user.kind != "customer") {
+            if (user.Kind != "saler" && user.Kind != "customer") {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The type of user can be either saler or customer." } });
             }
 
             user.Encryption();
             Context.Users.Add(user);
             Context.SaveChanges();
-            return Created($"api/users/{user.username}", null);
+            return Created($"api/users/{user.Username}", null);
         }
 
 
         //辅助，查看某一用户
         [HttpGet("{username}")]
         public IActionResult Get(string username) {
-            var _user = Context.Users.FirstOrDefault(r => r.username == username);
+            var _user = Context.Users.FirstOrDefault(r => r.Username == username);
             if (_user == null)
                 return NotFound();
             return Ok(_user);
@@ -71,55 +69,62 @@ namespace CouponDistribution.Controllers {
 
         //商家新建优惠券
         [HttpPost("{username}/coupons")]
-        public IActionResult SetCoupon(string username, [FromHeader] string Authorization, [FromBody]input1 input) {
-            var _user = Context.Users.FirstOrDefault(r => r.username == username);
-            if (_user == null || _user.auth != Authorization)
+        public IActionResult SetCoupon(string username, [FromHeader]string authorization, [FromBody]NewCouponArguments arg) {
+            var _user = Context.Users.FirstOrDefault(r => r.Username == username);
+            if (_user == null || _user.Authorization != authorization) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Authorization failed." } });
-            else if (_user.kind == "customer")
+            }
+            else if (_user.Kind == "customer") {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "Only salers can set new coupons." } });
+            }
 
-            if (input.name == null || input.name.Length == 0)
+            if (string.IsNullOrEmpty(arg.Name)) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The name of coupon cannot be empty." } });
-            else if (Context.Coupons.Include(r => r.User).FirstOrDefault(r => r.name == input.name) != null)
+            }
+            else if (Context.CouponsOfSaler.Include(r => r.User).FirstOrDefault(r => r.Name == arg.Name) != null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The coupon does exist." } });
+            }
 
-            if (input.amount <= 0)
+            if (arg.Amount <= 0)
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The amount of coupon should be larger than 0." } });
-            if (input.stock <= 0)
+            if (arg.Stock <= 0)
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The stock of coupon should be larger than 0." } });
 
-            var _coupon = new Coupon(username, input.name, input.stock, input.description, input.amount);
-            Context.Coupons.Add(_coupon);
+            var _coupon = new CouponOfSaler(username, arg.Name, arg.Stock, arg.Description, arg.Amount);
+            Context.CouponsOfSaler.Add(_coupon);
             Context.SaveChanges();
-            return Created($"api/users/{username}/coupons/{_coupon.name}", null);
+            return Created($"api/users/{username}/coupons/{_coupon.Name}", null);
         }
 
         //查看优惠券
         [HttpGet("{username}/coupons")]
-        public IActionResult CheckCoupon(string username, [FromHeader] string Authorization, int page) {
-            if (page <= 0)
+        public IActionResult CheckCoupon(string username, [FromHeader]string Authorization, int page) {
+            if (page <= 0) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The parameter page should be larger than 0." } });
+            }
             page -= 1;
 
-            var _user = Context.Users.FirstOrDefault(r => r.auth == Authorization);
-            if (_user == null)
+            var _user = Context.Users.FirstOrDefault(r => r.Authorization == Authorization);
+            if (_user == null) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Authorization failed." } });
+            }
 
-            if (_user.username == username && _user.kind == "customer") {
-                var coupon0 = Context.Coupons2.Include(r => r.User).Where(r => r.username == username).ToArray();
-                if (coupon0.Length <= page * 20)
+            if (_user.Username == username && _user.Kind == "customer") {
+                var coupon0 = Context.CouponsOfCustomer.Include(r => r.User).Where(r => r.Username == username).ToArray();
+                if (coupon0.Length <= page * 20) {
                     return NoContent();
+                }
                 else {
                     int len0 = coupon0.Length;
 
-                    var arr0 = new List<input3>();
+                    var arr0 = new List<GetCustomerCouponArguments>();
                     for (int i = page * 20; i < (page + 1) * 20 && i < len0; i++) {
-                        var input3 = new input3(coupon0[i].name, coupon0[i].stock, coupon0[i].description);
+                        var input3 = new GetCustomerCouponArguments(coupon0[i].Name, coupon0[i].Description, coupon0[i].Stock);
                         arr0.Add(input3);
                     }
 
                     arr0.ToArray();
-                    Dictionary<string, List<input3>> result0 = new Dictionary<string, List<input3>>
+                    Dictionary<string, List<GetCustomerCouponArguments>> result0 = new Dictionary<string, List<GetCustomerCouponArguments>>
                     {
                         { "data", arr0 }
                     };
@@ -127,68 +132,74 @@ namespace CouponDistribution.Controllers {
                 }
             }
 
-            var _user1 = Context.Users.FirstOrDefault(r => r.username == username);
-            if (_user1 == null)
+            var _user1 = Context.Users.FirstOrDefault(r => r.Username == username);
+            if (_user1 == null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for does not exist." } });
-            else if (_user1.kind == "customer")
+            }
+            else if (_user1.Kind == "customer") {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for is a customer instead of a saler." } });
+            }
 
-            var coupon = Context.Coupons.Include(r => r.User).Where(r => r.username == username).ToArray();
+            var coupon = Context.CouponsOfSaler.Include(r => r.User).Where(r => r.Username == username).ToArray();
             int len = coupon.Length;
 
             if (len <= page * 20)
                 return NoContent();
 
-            var arr = new List<input2>();
+            var arr = new List<GetSalerCouponArguments>();
             for (int i = page * 20; i < (page + 1) * 20 && i < len; i++) {
-                var input2 = new input2(coupon[i].name, coupon[i].amount, coupon[i].left, coupon[i].stock, coupon[i].description);
+                var input2 = new GetSalerCouponArguments(coupon[i].Name, coupon[i].Description, coupon[i].Stock, coupon[i].Amount, coupon[i].Left);
                 arr.Add(input2);
             }
 
             arr.ToArray();
-            Dictionary<string, List<input2>> result = new Dictionary<string, List<input2>>
+            Dictionary<string, List<GetSalerCouponArguments>> result = new Dictionary<string, List<GetSalerCouponArguments>>
             {
                 { "data", arr }
             };
             return Ok(result);
-
         }
 
         //用户获取优惠券
         [HttpPatch("{username}/coupons/{name}")]
-        public IActionResult GetCoupon(string username, string name, [FromHeader] string Authorization) {
-            var _user = Context.Users.FirstOrDefault(r => r.auth == Authorization);
-            if (_user == null)
+        public IActionResult GetCoupon(string username, string name, [FromHeader]string Authorization) {
+            var _user = Context.Users.FirstOrDefault(r => r.Authorization == Authorization);
+            if (_user == null) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Authorization failed." } });
-            else if (_user.kind == "saler")
+            }
+            else if (_user.Kind == "saler") {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "Only costomers can get coupons." } });
+            }
 
-            var _user1 = Context.Users.FirstOrDefault(r => r.username == username);
-            if (_user1 == null)
+            var _user1 = Context.Users.FirstOrDefault(r => r.Username == username);
+            if (_user1 == null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for does not exist." } });
-            else if (_user1.kind == "customer")
+            }
+            else if (_user1.Kind == "customer") {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for is a customer instead of a saler." } });
+            }
 
-            var _coupon = Context.Coupons.Include(r => r.User).Where(r => r.username == _user1.username).FirstOrDefault(r => r.name == name);
-            if (_coupon == null)
+            var _coupon = Context.CouponsOfSaler.Include(r => r.User).Where(r => r.Username == _user1.Username).FirstOrDefault(r => r.Name == name);
+            if (_coupon == null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "According to the username, the coupon you search for does not exist." } });
-            else if (_coupon.left == 0)
+            }
+            else if (_coupon.Left == 0) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The number of this coupon is 0." } });
+            }
 
-            var _coupon1 = Context.Coupons2.Include(r => r.User).Where(r => r.username == _user.username).FirstOrDefault(r => r.name == name);
-            if (_coupon1 != null)
+            var _coupon1 = Context.CouponsOfCustomer.Include(r => r.User).Where(r => r.Username == _user.Username).FirstOrDefault(r => r.Name == name);
+            if (_coupon1 != null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "You have owned this coupon." } });
+            }
 
-            _coupon.left -= 1;
-            Context.Coupons.Update(_coupon);
+            _coupon.Left -= 1;
+            Context.CouponsOfSaler.Update(_coupon);
 
-            var _coupon2 = new Coupon2(_user.username, name, _coupon.stock, _coupon.description);
-            Context.Coupons2.Add(_coupon2);
-
+            var _coupon2 = new CouponOfCustomer(_user.Username, name, _coupon.Stock, _coupon.Description);
+            Context.CouponsOfCustomer.Add(_coupon2);
             Context.SaveChanges();
 
             return Created("", null);
         }
-
     }
 }

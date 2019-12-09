@@ -7,19 +7,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CouponDistribution.Controllers {
-    //辅助，显示商家持有的优惠券的情况
+    //辅助，显示用户持有的优惠券的情况
     [Route("api/[controller]")]
     [ApiController]
-    public class CouponsController : ControllerBase {
+    public class CouponsOfCustomerController : ControllerBase {
         private DatabaseContext Context;
 
-        public CouponsController(DatabaseContext _context) {
-            Context = _context;
-        }
+        public CouponsOfCustomerController(DatabaseContext context) => Context = context;
 
         [HttpGet]
-        public IActionResult Get() {
-            return Ok(Context.Coupons.ToList());
-        }
+        public IActionResult Get() => Ok(Context.CouponsOfCustomer.ToList());
     }
 }

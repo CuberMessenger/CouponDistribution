@@ -15,105 +15,105 @@ namespace CouponDistribution.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.0");
 
-            modelBuilder.Entity("CouponDistribution.DataModel.Coupon", b =>
-                {
-                    b.Property<string>("name")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(60);
-
-                    b.Property<int>("amount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("description")
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(60);
-
-                    b.Property<int>("left")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("stock")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("username")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(20);
-
-                    b.HasKey("name");
-
-                    b.HasIndex("username");
-
-                    b.ToTable("Coupons");
-                });
-
-            modelBuilder.Entity("CouponDistribution.DataModel.Coupon2", b =>
+            modelBuilder.Entity("CouponDistribution.DataModel.CouponOfCustomer", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("description")
+                    b.Property<string>("Description")
                         .HasColumnType("TEXT")
                         .HasMaxLength(60);
 
-                    b.Property<string>("name")
+                    b.Property<string>("Name")
                         .HasColumnType("TEXT")
                         .HasMaxLength(60);
 
-                    b.Property<int>("stock")
+                    b.Property<int>("Stock")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("username")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasMaxLength(20);
 
                     b.HasKey("ID");
 
-                    b.HasIndex("username");
+                    b.HasIndex("Username");
 
-                    b.ToTable("Coupons2");
+                    b.ToTable("CouponsOfCustomer");
+                });
+
+            modelBuilder.Entity("CouponDistribution.DataModel.CouponOfSaler", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(60);
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(60);
+
+                    b.Property<int>("Left")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(20);
+
+                    b.HasKey("Name");
+
+                    b.HasIndex("Username");
+
+                    b.ToTable("CouponsOfSaler");
                 });
 
             modelBuilder.Entity("CouponDistribution.DataModel.User", b =>
                 {
-                    b.Property<string>("username")
-                        .HasColumnName("username")
+                    b.Property<string>("Username")
+                        .HasColumnName("Username")
                         .HasColumnType("TEXT")
                         .HasMaxLength(20);
 
-                    b.Property<string>("auth")
+                    b.Property<string>("Authorization")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("kind")
-                        .HasColumnName("kind")
+                    b.Property<string>("Kind")
+                        .HasColumnName("Kind")
                         .HasColumnType("TEXT")
                         .HasMaxLength(8);
 
-                    b.Property<string>("password")
-                        .HasColumnName("password")
+                    b.Property<string>("Password")
+                        .HasColumnName("Password")
                         .HasColumnType("TEXT")
                         .HasMaxLength(32);
 
-                    b.HasKey("username");
+                    b.HasKey("Username");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CouponDistribution.DataModel.Coupon", b =>
+            modelBuilder.Entity("CouponDistribution.DataModel.CouponOfCustomer", b =>
                 {
                     b.HasOne("CouponDistribution.DataModel.User", "User")
                         .WithMany()
-                        .HasForeignKey("username")
+                        .HasForeignKey("Username")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CouponDistribution.DataModel.Coupon2", b =>
+            modelBuilder.Entity("CouponDistribution.DataModel.CouponOfSaler", b =>
                 {
                     b.HasOne("CouponDistribution.DataModel.User", "User")
                         .WithMany()
-                        .HasForeignKey("username")
+                        .HasForeignKey("Username")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
