@@ -13,10 +13,10 @@ namespace CouponDistribution.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase {
-        private DataContext Context;
+        private DatabaseContext Context;
 
         //在构造函数时载入数据库
-        public UsersController(DataContext _context) {
+        public UsersController(DatabaseContext _context) {
             Context = _context;
         }
 

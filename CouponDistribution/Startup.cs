@@ -34,7 +34,7 @@ namespace CouponDistribution {
 
             //连接数据库
             var connection = "Filename=./user.db";
-            services.AddDbContext<DataContext>(options => options.UseSqlite(connection));
+            services.AddDbContext<DatabaseContext>(options => options.UseSqlite(connection));
 
             services.AddControllers();
         }

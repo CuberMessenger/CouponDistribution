@@ -11,9 +11,9 @@ namespace CouponDistribution.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class Coupons2Controller : ControllerBase {
-        private DataContext Context;
+        private DatabaseContext Context;
 
-        public Coupons2Controller(DataContext _context) {
+        public Coupons2Controller(DatabaseContext _context) {
             Context = _context;
         }
 

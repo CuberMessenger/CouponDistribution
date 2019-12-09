@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CouponDistribution.DataModel {
-    public class DataContext : DbContext {
+    public class DatabaseContext : DbContext {
         //数据库，由三张表组成
-        public DataContext(DbContextOptions<DataContext> options)
+        public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options) {
         }
 

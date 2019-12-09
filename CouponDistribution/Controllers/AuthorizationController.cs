@@ -13,9 +13,9 @@ namespace CouponDistribution.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthorizationController : ControllerBase {
-        private DataContext Context;
+        private DatabaseContext Context;
 
-        public AuthorizationController(DataContext _context) {
+        public AuthorizationController(DatabaseContext _context) {
             Context = _context;
         }
 
