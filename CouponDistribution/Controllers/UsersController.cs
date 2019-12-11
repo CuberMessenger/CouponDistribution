@@ -54,7 +54,7 @@ namespace CouponDistribution.Controllers {
             user.Encryption();
             Context.Users.Add(user);
             Context.SaveChanges();
-            return Created($"api/users/{user.Username}", null);
+            return Created($"api/users/{user.Username}", new Dictionary<string, string> { { "errMsg", "" } });
         }
 
 
@@ -93,16 +93,17 @@ namespace CouponDistribution.Controllers {
             var _coupon = new CouponOfSaler(username, arg.Name, arg.Stock, arg.Description, arg.Amount);
             Context.CouponsOfSaler.Add(_coupon);
             Context.SaveChanges();
-            return Created($"api/users/{username}/coupons/{_coupon.Name}", null);
+            return Created($"api/users/{username}/coupons/{_coupon.Name}", new Dictionary<string, string> { { "errMsg", "" } });
         }
 
         //查看优惠券
         [HttpGet("{username}/coupons")]
-        public IActionResult CheckCoupon(string username, [FromHeader]string Authorization, int page) {
-            if (page <= 0) {
+        public IActionResult CheckCoupon(string username, [FromHeader]string Authorization, [FromBody]string spage) {
+            int _page = int.Parse(spage.Split('\"')[3]);
+            if (_page <= 0) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The parameter page should be larger than 0." } });
             }
-            page -= 1;
+            _page -= 1;
 
             var _user = Context.Users.FirstOrDefault(r => r.Authorization == Authorization);
             if (_user == null) {
@@ -111,14 +112,14 @@ namespace CouponDistribution.Controllers {
 
             if (_user.Username == username && _user.Kind == "customer") {
                 var coupon0 = Context.CouponsOfCustomer.Include(r => r.User).Where(r => r.Username == username).ToArray();
-                if (coupon0.Length <= page * 20) {
+                if (coupon0.Length <= _page * 20) {
                     return NoContent();
                 }
                 else {
                     int len0 = coupon0.Length;
 
                     var arr0 = new List<GetCustomerCouponArguments>();
-                    for (int i = page * 20; i < (page + 1) * 20 && i < len0; i++) {
+                    for (int i = _page * 20; i < (_page + 1) * 20 && i < len0; i++) {
                         var input3 = new GetCustomerCouponArguments(coupon0[i].Name, coupon0[i].Description, coupon0[i].Stock);
                         arr0.Add(input3);
                     }
@@ -137,17 +138,17 @@ namespace CouponDistribution.Controllers {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for does not exist." } });
             }
             else if (_user1.Kind == "customer") {
-                return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for is a customer instead of a saler." } });
+                return Unauthorized(new Dictionary<string, string> { { "errMsg", "The user you search for is a customer instead of a saler." } });
             }
 
             var coupon = Context.CouponsOfSaler.Include(r => r.User).Where(r => r.Username == username).ToArray();
             int len = coupon.Length;
 
-            if (len <= page * 20)
+            if (len <= _page * 20)
                 return NoContent();
 
             var arr = new List<GetSalerCouponArguments>();
-            for (int i = page * 20; i < (page + 1) * 20 && i < len; i++) {
+            for (int i = _page * 20; i < (_page + 1) * 20 && i < len; i++) {
                 var input2 = new GetSalerCouponArguments(coupon[i].Name, coupon[i].Description, coupon[i].Stock, coupon[i].Amount, coupon[i].Left);
                 arr.Add(input2);
             }

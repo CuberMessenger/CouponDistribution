@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CouponDistribution.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20191209133851_BuildDatabase")]
+    [Migration("20191211134240_BuildDatabase")]
     partial class BuildDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

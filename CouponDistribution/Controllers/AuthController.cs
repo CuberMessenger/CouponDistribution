@@ -12,10 +12,10 @@ namespace CouponDistribution.Controllers {
     //用户登录
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorizationController : ControllerBase {
+    public class AuthController : ControllerBase {
         private DatabaseContext Context;
 
-        public AuthorizationController(DatabaseContext context) => Context = context;
+        public AuthController(DatabaseContext context) => Context = context;
 
         [HttpPost]
         public IActionResult Login([FromBody]User user) {
@@ -44,7 +44,7 @@ namespace CouponDistribution.Controllers {
 
                 //将token写入返回的头部
                 Response.Headers.Append("Authorization", _user.Authorization);
-                return Ok(new Dictionary<string, string> { { "kind", _user.Kind } });
+                return Ok(new Dictionary<string, string> { { "kind", _user.Kind }, { "errMsg", "" } });
             }
         }
     }
