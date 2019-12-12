@@ -23,7 +23,7 @@ namespace CouponDistribution.DataModel {
 
         private DatabaseCache() {
             DatabaseOperations = new Queue<Action>();
-            QueueLock = new Semaphore(0, 1);
+            QueueLock = new Semaphore(0, 0x7FFFFFFF);
 
             var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
 
