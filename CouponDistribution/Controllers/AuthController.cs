@@ -53,7 +53,7 @@ namespace CouponDistribution.Controllers {
                     var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                     context.Users.Update(_user);
                     context.SaveChanges();
-                });
+                }).Start();
 
                 //Context.Users.Update(_user);
                 //Context.SaveChanges();

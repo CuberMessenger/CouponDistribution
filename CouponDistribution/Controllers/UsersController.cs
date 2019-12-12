@@ -69,7 +69,7 @@ namespace CouponDistribution.Controllers {
                 var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                 context.Users.Add(user);
                 context.SaveChanges();
-            });
+            }).Start();
 
             //Context.Users.Add(user);
             //Context.SaveChanges();
@@ -132,7 +132,7 @@ namespace CouponDistribution.Controllers {
                 var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                 context.CouponsOfSaler.Add(_coupon);
                 context.SaveChanges();
-            });
+            }).Start();
 
             //Context.CouponsOfSaler.Add(_coupon);
             //Context.SaveChanges();
@@ -280,7 +280,7 @@ namespace CouponDistribution.Controllers {
                 context.CouponsOfSaler.Update(_coupon);
                 context.CouponsOfCustomer.Add(_coupon2);
                 context.SaveChanges();
-            });
+            }).Start();
 
             //Context.CouponsOfSaler.Update(_coupon);
             //Context.CouponsOfCustomer.Add(_coupon2);
