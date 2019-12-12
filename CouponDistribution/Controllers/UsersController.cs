@@ -18,11 +18,12 @@ namespace CouponDistribution.Controllers {
         //在构造函数时载入数据库
         public UsersController(DatabaseContext context) {
             Context = context;
+            DatabaseCache.Instance.Initiate(context);
         }
 
         //辅助，显示所有用户
         [HttpGet]
-        public IActionResult Get() => Ok(DatabaseCache.Instance.Users.ToList());
+        public IActionResult Get() => Ok(DatabaseCache.Instance.Users.Values.ToList());
 
         [HttpPost]
         //[ValidateAntiForgeryToken]

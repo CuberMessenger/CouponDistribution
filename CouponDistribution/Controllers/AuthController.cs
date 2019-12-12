@@ -13,12 +13,9 @@ namespace CouponDistribution.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase {
-        internal DatabaseContext Context;
+        private DatabaseContext Context;
 
-        public AuthController(DatabaseContext context) {
-            Context = context;
-            DatabaseCache.Instance.Initiate(context);
-        }
+        public AuthController(DatabaseContext context) => Context = context;
 
         [HttpPost]
         public IActionResult Login([FromBody]User user) {

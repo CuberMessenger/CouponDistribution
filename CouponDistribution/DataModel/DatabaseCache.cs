@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CouponDistribution.DataModel {
     public sealed class DatabaseCache {
-        public static readonly DatabaseCache Instance = new DatabaseCache();
+        public static DatabaseCache Instance = new DatabaseCache();
 
         private DatabaseContext Context = null;
 
@@ -24,16 +24,20 @@ namespace CouponDistribution.DataModel {
         public void Initiate(DatabaseContext context) {
             Context = context;
 
+            CouponsOfSaler = new Dictionary<string, Dictionary<string, CouponOfSaler>>();
             var couponsOfSaler = Context.CouponsOfSaler.ToList();
             foreach (var coupon in couponsOfSaler) {
                 CouponsOfSaler[coupon.Username][coupon.Name] = coupon;
             }
 
+            CouponsOfCustomer = new Dictionary<string, Dictionary<string, CouponOfCustomer>>();
             var couponsOfCustomer = Context.CouponsOfCustomer.ToList();
             foreach (var coupon in couponsOfCustomer) {
                 CouponsOfCustomer[coupon.Username][coupon.Name] = coupon;
             }
 
+            Users = new Dictionary<string, User>();
+            HashToUser = new Dictionary<string, User>();
             var users = Context.Users.ToList();
             foreach (var user in users) {
                 Users[user.Username] = user;
