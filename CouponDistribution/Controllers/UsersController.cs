@@ -66,8 +66,7 @@ namespace CouponDistribution.Controllers {
             }
 
             new Thread(() => {
-                using var context =
-                    new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+                var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                 context.Users.Add(user);
                 context.SaveChanges();
             });
@@ -130,8 +129,7 @@ namespace CouponDistribution.Controllers {
             DatabaseCache.Instance.CouponsOfSaler[username][arg.Name] = _coupon;
 
             new Thread(() => {
-                using var context = 
-                    new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+                var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                 context.CouponsOfSaler.Add(_coupon);
                 context.SaveChanges();
             });
@@ -278,8 +276,7 @@ namespace CouponDistribution.Controllers {
             DatabaseCache.Instance.CouponsOfCustomer[_user.Username][name] = _coupon2;
 
             new Thread(() => {
-                using var context = 
-                    new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+                var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                 context.CouponsOfSaler.Update(_coupon);
                 context.CouponsOfCustomer.Add(_coupon2);
                 context.SaveChanges();

@@ -50,8 +50,7 @@ namespace CouponDistribution.Controllers {
                 DatabaseCache.Instance.HashToUser[_user.Authorization] = _user;
 
                 new Thread(() => {
-                    using var context = 
-                        new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+                    var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                     context.Users.Update(_user);
                     context.SaveChanges();
                 });

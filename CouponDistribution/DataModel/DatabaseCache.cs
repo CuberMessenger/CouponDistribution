@@ -18,8 +18,7 @@ namespace CouponDistribution.DataModel {
         public Dictionary<string, Dictionary<string, CouponOfCustomer>> CouponsOfCustomer { get; set; }
 
         private DatabaseCache() {
-            using var context = 
-                new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+            var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
 
             CouponsOfSaler = new Dictionary<string, Dictionary<string, CouponOfSaler>>();
             var couponsOfSaler = context.CouponsOfSaler.ToList();
