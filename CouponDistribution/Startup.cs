@@ -33,11 +33,8 @@ namespace CouponDistribution {
             //services.AddMvc().AddJsonOptions(r => r.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver());
 
             //连接数据库
-            var connection = "Filename=./user.db";
-            services.AddDbContext<DatabaseContext>(options => options.UseSqlite(connection));
-
+            services.AddDbContext<DatabaseContext>(options => options.UseInMemoryDatabase());
             services.AddControllers();
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
