@@ -8,7 +8,7 @@ namespace CouponDistribution.DataModel {
     public sealed class DatabaseCache {
         public static DatabaseCache Instance = new DatabaseCache();
 
-        private DatabaseContext Context = null;
+        internal DatabaseContext Context = null;
 
         public Dictionary<string, User> Users { get; set; }
 
@@ -27,12 +27,18 @@ namespace CouponDistribution.DataModel {
             CouponsOfSaler = new Dictionary<string, Dictionary<string, CouponOfSaler>>();
             var couponsOfSaler = Context.CouponsOfSaler.ToList();
             foreach (var coupon in couponsOfSaler) {
+                if (!CouponsOfSaler.ContainsKey(coupon.Username)) {
+                    CouponsOfSaler[coupon.Username] = new Dictionary<string, CouponOfSaler>();
+                }
                 CouponsOfSaler[coupon.Username][coupon.Name] = coupon;
             }
 
             CouponsOfCustomer = new Dictionary<string, Dictionary<string, CouponOfCustomer>>();
             var couponsOfCustomer = Context.CouponsOfCustomer.ToList();
             foreach (var coupon in couponsOfCustomer) {
+                if (!CouponsOfCustomer.ContainsKey(coupon.Username)) {
+                    CouponsOfCustomer[coupon.Username] = new Dictionary<string, CouponOfCustomer>();
+                }
                 CouponsOfCustomer[coupon.Username][coupon.Name] = coupon;
             }
 
