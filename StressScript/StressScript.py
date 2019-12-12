@@ -285,7 +285,74 @@ def test():
     session.close()
 
 
-
+def test_1000():
+    
+    sales_num = 1
+    customer_num = 1
+    coupon_num = 1
+    
+    for t in range(0, 10):
+    
+        sales_list = []
+        customer_list = []
+        coupon_list = []
+        
+        for i in range(0, 10):
+            
+            sales = Sales("sales"+str(sales_num), "123")
+            sales_list.append(sales)
+            sales_num += 1
+            
+            customer = Customer("customer"+str(customer_num), "123")
+            customer_list.append(customer)
+            customer_num += 1
+            
+            for j in range(0, 10):
+                
+                coupon = Coupon("coupon"+str(coupon_num), "10", "1", "A!")
+                coupon_list.append(coupon)
+                coupon_num += 1
+                
+        session = requests.session()
+        
+        start = time.time()
+        
+        for i in range(0, 10):
+            
+            _ = TestRegistration(sales_list[i], session)
+            _ = TestRegistration(customer_list[i], session)
+            
+            _ = TestLogin(sales_list[i], session)
+            _ = TestLogin(customer_list[i], session)
+            
+        end = time.time()
+        print("Register and Login cost: %.3f" % (end - start))
+        
+        start = time.time()
+        
+        for i in range(0, 10):
+            for j in range(0, 10):
+                _ = TestAddCoupons(sales_list[i], coupon_list[i*10+j], session)
+        
+        for i in range(0, 10):
+            for j in range(0, 10):
+                _ = TestCustomerGetCoupons(customer_list[i], sales_list[j], coupon_list[j*10+i], session)
+        
+        for i in range(0, 10):
+            
+            _ = TestGetCouponsInfo(searcher=sales_list[i], searchee=sales_list[i], session=session)
+            _ = TestGetCouponsInfo(searcher=customer_list[i], searchee=customer_list[i], session=session)
+            _ = TestGetCouponsInfo(searcher=customer_list[i], searchee=customer_list[9-i], session=session)
+            
+            for j in range(0, 10):
+                
+                _ = TestGetCouponsInfo(searcher=customer_list[i], searchee=sales_list[j], session=session)
+        
+        end = time.time()
+        print("Other test cost: %.3f" % (end - start))
+        
+        session.close()
 
 if __name__ == '__main__':
-    test()
+    #test()
+    test_1000()
