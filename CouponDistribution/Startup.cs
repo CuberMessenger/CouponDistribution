@@ -37,6 +37,7 @@ namespace CouponDistribution {
             services.AddDbContext<DatabaseContext>(options => options.UseSqlite(connection));
 
             services.AddControllers();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
