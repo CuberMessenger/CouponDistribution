@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CouponDistribution.DataModel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CouponDistribution.Controllers {
     //用户登录
@@ -47,9 +49,11 @@ namespace CouponDistribution.Controllers {
                 DatabaseCache.Instance.Users[_user.Username].Authorization = _user.Authorization;
                 DatabaseCache.Instance.HashToUser[_user.Authorization] = _user;
 
-                DatabaseCache.UpdateOperation(() => {
-                    Context.Users.Update(_user);
-                    Context.SaveChanges();
+                new Thread(() => {
+                    using var context = 
+                        new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+                    context.Users.Update(_user);
+                    context.SaveChanges();
                 });
 
                 //Context.Users.Update(_user);

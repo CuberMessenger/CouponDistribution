@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore;
 using CouponDistribution.DataModel;
+using System.Threading;
 
 namespace CouponDistribution.Controllers {
     //除用户登录之外的所有api的实现
@@ -16,12 +17,7 @@ namespace CouponDistribution.Controllers {
         private DatabaseContext Context;
 
         //在构造函数时载入数据库
-        public UsersController(DatabaseContext context) {
-            Context = context;
-            if (DatabaseCache.Instance.Context is null) {
-                DatabaseCache.Instance.Initiate(context);
-            }
-        }
+        public UsersController(DatabaseContext context) => Context = context;
 
         //辅助，显示所有用户
         [HttpGet]
@@ -69,9 +65,11 @@ namespace CouponDistribution.Controllers {
                 DatabaseCache.Instance.CouponsOfCustomer[user.Username] = new Dictionary<string, CouponOfCustomer>();
             }
 
-            DatabaseCache.UpdateOperation(() => {
-                Context.Users.Add(user);
-                Context.SaveChanges();
+            new Thread(() => {
+                using var context =
+                    new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+                context.Users.Add(user);
+                context.SaveChanges();
             });
 
             //Context.Users.Add(user);
@@ -131,9 +129,11 @@ namespace CouponDistribution.Controllers {
             var _coupon = new CouponOfSaler(username, arg.Name, arg.Stock, arg.Description, arg.Amount);
             DatabaseCache.Instance.CouponsOfSaler[username][arg.Name] = _coupon;
 
-            DatabaseCache.UpdateOperation(() => {
-                Context.CouponsOfSaler.Add(_coupon);
-                Context.SaveChanges();
+            new Thread(() => {
+                using var context = 
+                    new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+                context.CouponsOfSaler.Add(_coupon);
+                context.SaveChanges();
             });
 
             //Context.CouponsOfSaler.Add(_coupon);
@@ -277,10 +277,12 @@ namespace CouponDistribution.Controllers {
             var _coupon2 = new CouponOfCustomer(_user.Username, name, _coupon.Stock, _coupon.Description);
             DatabaseCache.Instance.CouponsOfCustomer[_user.Username][name] = _coupon2;
 
-            DatabaseCache.UpdateOperation(() => {
-                Context.CouponsOfSaler.Update(_coupon);
-                Context.CouponsOfCustomer.Add(_coupon2);
-                Context.SaveChanges();
+            new Thread(() => {
+                using var context = 
+                    new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+                context.CouponsOfSaler.Update(_coupon);
+                context.CouponsOfCustomer.Add(_coupon2);
+                context.SaveChanges();
             });
 
             //Context.CouponsOfSaler.Update(_coupon);

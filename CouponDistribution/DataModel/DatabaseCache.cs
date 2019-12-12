@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -6,9 +7,7 @@ using System.Threading.Tasks;
 
 namespace CouponDistribution.DataModel {
     public sealed class DatabaseCache {
-        public static DatabaseCache Instance = new DatabaseCache();
-
-        internal DatabaseContext Context = null;
+        public static readonly DatabaseCache Instance = new DatabaseCache();
 
         public Dictionary<string, User> Users { get; set; }
 
@@ -19,13 +18,11 @@ namespace CouponDistribution.DataModel {
         public Dictionary<string, Dictionary<string, CouponOfCustomer>> CouponsOfCustomer { get; set; }
 
         private DatabaseCache() {
-        }
-
-        public void Initiate(DatabaseContext context) {
-            Context = context;
+            using var context = 
+                new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
 
             CouponsOfSaler = new Dictionary<string, Dictionary<string, CouponOfSaler>>();
-            var couponsOfSaler = Context.CouponsOfSaler.ToList();
+            var couponsOfSaler = context.CouponsOfSaler.ToList();
             foreach (var coupon in couponsOfSaler) {
                 if (!CouponsOfSaler.ContainsKey(coupon.Username)) {
                     CouponsOfSaler[coupon.Username] = new Dictionary<string, CouponOfSaler>();
@@ -34,7 +31,7 @@ namespace CouponDistribution.DataModel {
             }
 
             CouponsOfCustomer = new Dictionary<string, Dictionary<string, CouponOfCustomer>>();
-            var couponsOfCustomer = Context.CouponsOfCustomer.ToList();
+            var couponsOfCustomer = context.CouponsOfCustomer.ToList();
             foreach (var coupon in couponsOfCustomer) {
                 if (!CouponsOfCustomer.ContainsKey(coupon.Username)) {
                     CouponsOfCustomer[coupon.Username] = new Dictionary<string, CouponOfCustomer>();
@@ -44,7 +41,7 @@ namespace CouponDistribution.DataModel {
 
             Users = new Dictionary<string, User>();
             HashToUser = new Dictionary<string, User>();
-            var users = Context.Users.ToList();
+            var users = context.Users.ToList();
             foreach (var user in users) {
                 Users[user.Username] = user;
                 if (!string.IsNullOrEmpty(user.Authorization)) {
@@ -62,7 +59,5 @@ namespace CouponDistribution.DataModel {
                 }
             }
         }
-
-        public static void UpdateOperation(ThreadStart operation) => new Thread(operation).Start();
     }
 }
