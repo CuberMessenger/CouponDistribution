@@ -59,6 +59,12 @@ namespace CouponDistribution.Controllers {
             user.Encryption();
 
             DatabaseCache.Instance.Users[user.Username] = user;
+            if (user.Kind == "saler") {
+                DatabaseCache.Instance.CouponsOfSaler[user.Username] = new Dictionary<string, CouponOfSaler>();
+            }
+            if (user.Kind == "customer") {
+                DatabaseCache.Instance.CouponsOfCustomer[user.Username] = new Dictionary<string, CouponOfCustomer>();
+            }
 
             //DatabaseCache.UpdateOperation(() => {
             //    Context.Users.Add(user);
@@ -152,7 +158,9 @@ namespace CouponDistribution.Controllers {
             }
 
             if (_user.Username == username && _user.Kind == "customer") {
-                var coupon0 = Context.CouponsOfCustomer.Include(r => r.User).Where(r => r.Username == username).ToArray();
+                var coupon0 = DatabaseCache.Instance.CouponsOfCustomer[username].Values.ToArray();
+
+                //var coupon0 = Context.CouponsOfCustomer.Include(r => r.User).Where(r => r.Username == username).ToArray();
                 if (coupon0.Length <= _page * 20) {
                     return NoContent();
                 }
@@ -174,7 +182,12 @@ namespace CouponDistribution.Controllers {
                 }
             }
 
-            var _user1 = Context.Users.FirstOrDefault(r => r.Username == username);
+            User _user1;
+            flag = DatabaseCache.Instance.Users.TryGetValue(username, out _user1);
+            if (!flag) {
+                _user1 = null;
+            }
+            //var _user1 = Context.Users.FirstOrDefault(r => r.Username == username);
             if (_user1 == null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for does not exist." } });
             }
@@ -182,7 +195,8 @@ namespace CouponDistribution.Controllers {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "The user you search for is a customer instead of a saler." } });
             }
 
-            var coupon = Context.CouponsOfSaler.Include(r => r.User).Where(r => r.Username == username).ToArray();
+            var coupon = DatabaseCache.Instance.CouponsOfSaler[username].Values.ToArray();
+            //var coupon = Context.CouponsOfSaler.Include(r => r.User).Where(r => r.Username == username).ToArray();
             int len = coupon.Length;
 
             if (len <= _page * 20)
@@ -205,7 +219,12 @@ namespace CouponDistribution.Controllers {
         //用户获取优惠券
         [HttpPatch("{username}/coupons/{name}")]
         public IActionResult GetCoupon(string username, string name, [FromHeader]string Authorization) {
-            var _user = Context.Users.FirstOrDefault(r => r.Authorization == Authorization);
+            User _user;
+            bool flag = DatabaseCache.Instance.HashToUser.TryGetValue(Authorization, out _user);
+            if (!flag) {
+                _user = null;
+            }
+            //var _user = Context.Users.FirstOrDefault(r => r.Authorization == Authorization);
             if (_user == null) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Authorization failed." } });
             }
@@ -213,7 +232,12 @@ namespace CouponDistribution.Controllers {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "Only costomers can get coupons." } });
             }
 
-            var _user1 = Context.Users.FirstOrDefault(r => r.Username == username);
+            User _user1;
+            flag = DatabaseCache.Instance.Users.TryGetValue(username, out _user1);
+            if (!flag) {
+                _user1 = null;
+            }
+            //var _user1 = Context.Users.FirstOrDefault(r => r.Username == username);
             if (_user1 == null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for does not exist." } });
             }
@@ -221,7 +245,12 @@ namespace CouponDistribution.Controllers {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The user you search for is a customer instead of a saler." } });
             }
 
-            var _coupon = Context.CouponsOfSaler.Include(r => r.User).Where(r => r.Username == _user1.Username).FirstOrDefault(r => r.Name == name);
+            CouponOfSaler _coupon;
+            flag = DatabaseCache.Instance.CouponsOfSaler[_user1.Username].TryGetValue(name, out _coupon);
+            if (!flag) {
+                _coupon = null;
+            }
+            //var _coupon = Context.CouponsOfSaler.Include(r => r.User).Where(r => r.Username == _user1.Username).FirstOrDefault(r => r.Name == name);
             if (_coupon == null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "According to the username, the coupon you search for does not exist." } });
             }
@@ -229,15 +258,29 @@ namespace CouponDistribution.Controllers {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The number of this coupon is 0." } });
             }
 
-            var _coupon1 = Context.CouponsOfCustomer.Include(r => r.User).Where(r => r.Username == _user.Username).FirstOrDefault(r => r.Name == name);
+            CouponOfCustomer _coupon1;
+            flag = DatabaseCache.Instance.CouponsOfCustomer[_user.Username].TryGetValue(name, out _coupon1);
+            if (!flag) {
+                _coupon1 = null;
+            }
+            //var _coupon1 = Context.CouponsOfCustomer.Include(r => r.User).Where(r => r.Username == _user.Username).FirstOrDefault(r => r.Name == name);
             if (_coupon1 != null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "You have owned this coupon." } });
             }
 
             _coupon.Left -= 1;
-            Context.CouponsOfSaler.Update(_coupon);
+            DatabaseCache.Instance.CouponsOfSaler[_user1.Username][name].Left = _coupon.Left;
 
             var _coupon2 = new CouponOfCustomer(_user.Username, name, _coupon.Stock, _coupon.Description);
+            DatabaseCache.Instance.CouponsOfCustomer[_user.Username][name] = _coupon2;
+
+            //DatabaseCache.UpdateOperation(() => {
+            //    Context.CouponsOfSaler.Update(_coupon);
+            //    Context.CouponsOfCustomer.Add(_coupon2);
+            //    Context.SaveChanges();
+            //});
+
+            Context.CouponsOfSaler.Update(_coupon);
             Context.CouponsOfCustomer.Add(_coupon2);
             Context.SaveChanges();
 

@@ -23,13 +23,6 @@ namespace CouponDistribution.DataModel {
 
         public void Initiate(DatabaseContext context) {
             Context = context;
-            var users = Context.Users.ToList();
-            foreach (var user in users) {
-                Users[user.Username] = user;
-                if (!string.IsNullOrEmpty(user.Authorization)) {
-                    HashToUser[user.Authorization] = user;
-                }
-            }
 
             var couponsOfSaler = Context.CouponsOfSaler.ToList();
             foreach (var coupon in couponsOfSaler) {
@@ -39,6 +32,24 @@ namespace CouponDistribution.DataModel {
             var couponsOfCustomer = Context.CouponsOfCustomer.ToList();
             foreach (var coupon in couponsOfCustomer) {
                 CouponsOfCustomer[coupon.Username][coupon.Name] = coupon;
+            }
+
+            var users = Context.Users.ToList();
+            foreach (var user in users) {
+                Users[user.Username] = user;
+                if (!string.IsNullOrEmpty(user.Authorization)) {
+                    HashToUser[user.Authorization] = user;
+                }
+                if (user.Kind == "saler") {
+                    if (!CouponsOfSaler.ContainsKey(user.Username)) {
+                        CouponsOfSaler[user.Username] = new Dictionary<string, CouponOfSaler>();
+                    }
+                }
+                if (user.Kind == "customer") {
+                    if (!CouponsOfCustomer.ContainsKey(user.Username)) {
+                        CouponsOfCustomer[user.Username] = new Dictionary<string, CouponOfCustomer>();
+                    }
+                }
             }
         }
 
