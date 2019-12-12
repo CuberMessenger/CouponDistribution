@@ -47,13 +47,13 @@ namespace CouponDistribution.Controllers {
                 DatabaseCache.Instance.Users[_user.Username].Authorization = _user.Authorization;
                 DatabaseCache.Instance.HashToUser[_user.Authorization] = _user;
 
-                //DatabaseCache.UpdateOperation(() => {
-                //    Context.Users.Update(_user);
-                //    Context.SaveChanges();
-                //});
+                DatabaseCache.UpdateOperation(() => {
+                    Context.Users.Update(_user);
+                    Context.SaveChanges();
+                });
 
-                Context.Users.Update(_user);
-                Context.SaveChanges();
+                //Context.Users.Update(_user);
+                //Context.SaveChanges();
 
                 //将token写入返回的头部
                 Response.Headers.Append("Authorization", _user.Authorization);

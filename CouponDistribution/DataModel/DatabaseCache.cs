@@ -63,6 +63,6 @@ namespace CouponDistribution.DataModel {
             }
         }
 
-        public async static void UpdateOperation(ThreadStart operation) => new Thread(operation).Start();
+        public static void UpdateOperation(ThreadStart operation) => new Thread(operation).Start();
     }
 }

@@ -69,13 +69,13 @@ namespace CouponDistribution.Controllers {
                 DatabaseCache.Instance.CouponsOfCustomer[user.Username] = new Dictionary<string, CouponOfCustomer>();
             }
 
-            //DatabaseCache.UpdateOperation(() => {
-            //    Context.Users.Add(user);
-            //    Context.SaveChanges();
-            //});
+            DatabaseCache.UpdateOperation(() => {
+                Context.Users.Add(user);
+                Context.SaveChanges();
+            });
 
-            Context.Users.Add(user);
-            Context.SaveChanges();
+            //Context.Users.Add(user);
+            //Context.SaveChanges();
             return Created($"api/users/{user.Username}", new Dictionary<string, string> { { "errMsg", "" } });
         }
 
@@ -131,13 +131,13 @@ namespace CouponDistribution.Controllers {
             var _coupon = new CouponOfSaler(username, arg.Name, arg.Stock, arg.Description, arg.Amount);
             DatabaseCache.Instance.CouponsOfSaler[username][arg.Name] = _coupon;
 
-            //DatabaseCache.UpdateOperation(() => {
-            //    Context.CouponsOfSaler.Add(_coupon);
-            //    Context.SaveChanges();
-            //});
+            DatabaseCache.UpdateOperation(() => {
+                Context.CouponsOfSaler.Add(_coupon);
+                Context.SaveChanges();
+            });
 
-            Context.CouponsOfSaler.Add(_coupon);
-            Context.SaveChanges();
+            //Context.CouponsOfSaler.Add(_coupon);
+            //Context.SaveChanges();
             return Created($"api/users/{username}/coupons/{_coupon.Name}", new Dictionary<string, string> { { "errMsg", "" } });
         }
 
@@ -277,15 +277,15 @@ namespace CouponDistribution.Controllers {
             var _coupon2 = new CouponOfCustomer(_user.Username, name, _coupon.Stock, _coupon.Description);
             DatabaseCache.Instance.CouponsOfCustomer[_user.Username][name] = _coupon2;
 
-            //DatabaseCache.UpdateOperation(() => {
-            //    Context.CouponsOfSaler.Update(_coupon);
-            //    Context.CouponsOfCustomer.Add(_coupon2);
-            //    Context.SaveChanges();
-            //});
+            DatabaseCache.UpdateOperation(() => {
+                Context.CouponsOfSaler.Update(_coupon);
+                Context.CouponsOfCustomer.Add(_coupon2);
+                Context.SaveChanges();
+            });
 
-            Context.CouponsOfSaler.Update(_coupon);
-            Context.CouponsOfCustomer.Add(_coupon2);
-            Context.SaveChanges();
+            //Context.CouponsOfSaler.Update(_coupon);
+            //Context.CouponsOfCustomer.Add(_coupon2);
+            //Context.SaveChanges();
 
             return Created("", null);
         }
