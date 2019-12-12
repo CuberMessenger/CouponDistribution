@@ -232,13 +232,15 @@ def test():
     # new a request session
     session = requests.session()
 
+    start = time.time()
+
     # register test
-    #_ = TestRegistration(s1, session)
-    #_ = TestRegistration(s2, session)
-    #_ = TestRegistration(s3, session)
-    #_ = TestRegistration(cu1, session)
-    #_ = TestRegistration(cu2, session)
-    #_ = TestRegistration(cu3, session)
+    _ = TestRegistration(s1, session)
+    _ = TestRegistration(s2, session)
+    _ = TestRegistration(s3, session)
+    _ = TestRegistration(cu1, session)
+    _ = TestRegistration(cu2, session)
+    _ = TestRegistration(cu3, session)
     print("########################################")
 
     # login test
@@ -250,18 +252,20 @@ def test():
     _ = TestLogin(cu3, session)  # 认证失败（用户不存在或密码错误）: dzf
     print("########################################")
 
-    time.sleep(2)
+    end = time.time()
+    print("Register and Login cost: %.3f" % (end - start))
+    start = time.time()
 
     # add coupons test
-    #_ = TestAddCoupons(s1, coupon1, session)
-    #_ = TestAddCoupons(s1, coupon2, session)
-    #_ = TestAddCoupons(s2, coupon3, session)
-    #_ = TestAddCoupons(cu1, coupon4, session)  # 非商家，不能新建Coupons
+    _ = TestAddCoupons(s1, coupon1, session)
+    _ = TestAddCoupons(s1, coupon2, session)
+    _ = TestAddCoupons(s2, coupon3, session)
+    _ = TestAddCoupons(cu1, coupon4, session)  # 非商家，不能新建Coupons
     print("########################################")
 
     # get coupons test
-    #_ = TestCustomerGetCoupons(customer=cu1, sales=s1, coupon=coupon1, session=session)
-    #_ = TestCustomerGetCoupons(customer=cu1, sales=s1, coupon=coupon1, session=session)
+    _ = TestCustomerGetCoupons(customer=cu1, sales=s1, coupon=coupon1, session=session)
+    _ = TestCustomerGetCoupons(customer=cu1, sales=s1, coupon=coupon1, session=session)
     print("########################################")
 
     # get coupons info test
@@ -272,6 +276,8 @@ def test():
     _ = TestGetCouponsInfo(searcher=s3, searchee=s3, session=session)  # 查询商家剩余的优惠券信息，但查询结果为空
 
     print("########################################")
+    end = time.time()
+    print("Other test cost: %.3f" % (end - start))
 
     #Add-Migration BuildDatabase
     #Update-Database
