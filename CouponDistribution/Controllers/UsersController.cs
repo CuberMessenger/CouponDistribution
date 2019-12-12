@@ -22,7 +22,7 @@ namespace CouponDistribution.Controllers {
 
         //辅助，显示所有用户
         [HttpGet]
-        public IActionResult Get() => Ok(Context.Users.ToList());
+        public IActionResult Get() => Ok(DatabaseCache.Instance.Users.ToList());
 
         [HttpPost]
         //[ValidateAntiForgeryToken]
@@ -35,7 +35,12 @@ namespace CouponDistribution.Controllers {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The length of username can not be larger than 20!" } });
             }
 
-            var _user = Context.Users.FirstOrDefault(r => r.Username == user.Username);
+            User _user;
+            bool flag = DatabaseCache.Instance.Users.TryGetValue(user.Username, out _user);
+            if (!flag) {
+                _user = null;
+            }
+            //var _user = Context.Users.FirstOrDefault(r => r.Username == user.Username);
             if (_user != null) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The username had already been registered." } });
             }
@@ -52,6 +57,14 @@ namespace CouponDistribution.Controllers {
             }
 
             user.Encryption();
+
+            DatabaseCache.Instance.Users[user.Username] = user;
+
+            //DatabaseCache.UpdateOperation(() => {
+            //    Context.Users.Add(user);
+            //    Context.SaveChanges();
+            //});
+
             Context.Users.Add(user);
             Context.SaveChanges();
             return Created($"api/users/{user.Username}", new Dictionary<string, string> { { "errMsg", "" } });
@@ -61,7 +74,11 @@ namespace CouponDistribution.Controllers {
         //辅助，查看某一用户
         [HttpGet("{username}")]
         public IActionResult Get(string username) {
-            var _user = Context.Users.FirstOrDefault(r => r.Username == username);
+            User _user;
+            bool flag = DatabaseCache.Instance.Users.TryGetValue(username, out _user);
+            if (!flag) {
+                _user = null;
+            }
             if (_user == null)
                 return NotFound();
             return Ok(_user);
@@ -70,7 +87,12 @@ namespace CouponDistribution.Controllers {
         //商家新建优惠券
         [HttpPost("{username}/coupons")]
         public IActionResult SetCoupon(string username, [FromHeader]string authorization, [FromBody]NewCouponArguments arg) {
-            var _user = Context.Users.FirstOrDefault(r => r.Username == username);
+            User _user;
+            bool flag = DatabaseCache.Instance.Users.TryGetValue(username, out _user);
+            if (!flag) {
+                _user = null;
+            }
+            //var _user = Context.Users.FirstOrDefault(r => r.Username == username);
             if (_user == null || _user.Authorization != authorization) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Authorization failed." } });
             }
@@ -81,9 +103,16 @@ namespace CouponDistribution.Controllers {
             if (string.IsNullOrEmpty(arg.Name)) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The name of coupon cannot be empty." } });
             }
-            else if (Context.CouponsOfSaler.Include(r => r.User).FirstOrDefault(r => r.Name == arg.Name) != null) {
-                return BadRequest(new Dictionary<string, string> { { "errMsg", "The coupon does exist." } });
+            else {
+                CouponOfSaler coupon;
+                flag = DatabaseCache.Instance.CouponsOfSaler[username].TryGetValue(arg.Name, out coupon);
+                if (flag) {
+                    return BadRequest(new Dictionary<string, string> { { "errMsg", "The coupon does exist." } });
+                }
             }
+            //else if (Context.CouponsOfSaler.Include(r => r.User).FirstOrDefault(r => r.Name == arg.Name) != null) {
+            //    return BadRequest(new Dictionary<string, string> { { "errMsg", "The coupon does exist." } });
+            //}
 
             if (arg.Amount <= 0)
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The amount of coupon should be larger than 0." } });
@@ -91,6 +120,13 @@ namespace CouponDistribution.Controllers {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The stock of coupon should be larger than 0." } });
 
             var _coupon = new CouponOfSaler(username, arg.Name, arg.Stock, arg.Description, arg.Amount);
+            DatabaseCache.Instance.CouponsOfSaler[username][arg.Name] = _coupon;
+
+            //DatabaseCache.UpdateOperation(() => {
+            //    Context.CouponsOfSaler.Add(_coupon);
+            //    Context.SaveChanges();
+            //});
+
             Context.CouponsOfSaler.Add(_coupon);
             Context.SaveChanges();
             return Created($"api/users/{username}/coupons/{_coupon.Name}", new Dictionary<string, string> { { "errMsg", "" } });
@@ -105,7 +141,12 @@ namespace CouponDistribution.Controllers {
             }
             _page -= 1;
 
-            var _user = Context.Users.FirstOrDefault(r => r.Authorization == Authorization);
+            User _user;
+            bool flag = DatabaseCache.Instance.HashToUser.TryGetValue(Authorization, out _user);
+            if (!flag) {
+                _user = null;
+            }
+            //var _user = Context.Users.FirstOrDefault(r => r.Authorization == Authorization);
             if (_user == null) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Authorization failed." } });
             }

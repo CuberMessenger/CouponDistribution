@@ -33,7 +33,9 @@ namespace CouponDistribution {
             //services.AddMvc().AddJsonOptions(r => r.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver());
 
             //连接数据库
-            services.AddDbContext<DatabaseContext>(options => options.UseInMemoryDatabase());
+            var connection = "Filename=./user.db";
+            services.AddDbContext<DatabaseContext>(options => options.UseSqlite(connection));
+
             services.AddControllers();
         }
 

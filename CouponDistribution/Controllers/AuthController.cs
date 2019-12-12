@@ -13,9 +13,12 @@ namespace CouponDistribution.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase {
-        private DatabaseContext Context;
+        internal DatabaseContext Context;
 
-        public AuthController(DatabaseContext context) => Context = context;
+        public AuthController(DatabaseContext context) {
+            Context = context;
+            DatabaseCache.Instance.Initiate(context);
+        }
 
         [HttpPost]
         public IActionResult Login([FromBody]User user) {
@@ -27,7 +30,12 @@ namespace CouponDistribution.Controllers {
             }
 
             user.Encryption();
-            var _user = Context.Users.FirstOrDefault(r => r.Username == user.Username);
+            User _user;
+            bool flag = DatabaseCache.Instance.Users.TryGetValue(user.Username, out _user);
+            if (!flag) {
+                _user = null;
+            }
+            //var _user = Context.Users.FirstOrDefault(r => r.Username == user.Username);
             if (_user == null) {
                 return Unauthorized(new Dictionary<string, string> { { "errMsg", "Can not find the username." } });
             }
@@ -39,6 +47,14 @@ namespace CouponDistribution.Controllers {
                 //_user.auth = _user.Md5Hash(_user.password + random.Next().ToString());
 
                 _user.Authorization = _user.Md5Hash(_user.Username + _user.Password + _user.Username);
+                DatabaseCache.Instance.Users[_user.Username].Authorization = _user.Authorization;
+                DatabaseCache.Instance.HashToUser[_user.Authorization] = _user;
+
+                //DatabaseCache.UpdateOperation(() => {
+                //    Context.Users.Update(_user);
+                //    Context.SaveChanges();
+                //});
+
                 Context.Users.Update(_user);
                 Context.SaveChanges();
 
