@@ -54,6 +54,7 @@ namespace CouponDistribution.Controllers {
                     context.Users.Update(_user);
                     context.SaveChanges();
                 });
+                DatabaseCache.Instance.QueueLock.Release();
 
                 //Context.Users.Update(_user);
                 //Context.SaveChanges();

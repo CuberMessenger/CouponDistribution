@@ -65,11 +65,12 @@ namespace CouponDistribution.Controllers {
                 DatabaseCache.Instance.CouponsOfCustomer[user.Username] = new Dictionary<string, CouponOfCustomer>();
             }
 
-            new Thread(() => {
+            DatabaseCache.Instance.DatabaseOperations.Enqueue(() => {
                 var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                 context.Users.Add(user);
                 context.SaveChanges();
-            }).Start();
+            });
+            DatabaseCache.Instance.QueueLock.Release();
 
             //Context.Users.Add(user);
             //Context.SaveChanges();
@@ -128,11 +129,12 @@ namespace CouponDistribution.Controllers {
             var _coupon = new CouponOfSaler(username, arg.Name, arg.Stock, arg.Description, arg.Amount);
             DatabaseCache.Instance.CouponsOfSaler[username][arg.Name] = _coupon;
 
-            new Thread(() => {
+            DatabaseCache.Instance.DatabaseOperations.Enqueue(() => {
                 var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                 context.CouponsOfSaler.Add(_coupon);
                 context.SaveChanges();
-            }).Start();
+            });
+            DatabaseCache.Instance.QueueLock.Release();
 
             //Context.CouponsOfSaler.Add(_coupon);
             //Context.SaveChanges();
@@ -275,12 +277,13 @@ namespace CouponDistribution.Controllers {
             var _coupon2 = new CouponOfCustomer(_user.Username, name, _coupon.Stock, _coupon.Description);
             DatabaseCache.Instance.CouponsOfCustomer[_user.Username][name] = _coupon2;
 
-            new Thread(() => {
+            DatabaseCache.Instance.DatabaseOperations.Enqueue(() => {
                 var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                 context.CouponsOfSaler.Update(_coupon);
                 context.CouponsOfCustomer.Add(_coupon2);
                 context.SaveChanges();
-            }).Start();
+            });
+            DatabaseCache.Instance.QueueLock.Release();
 
             //Context.CouponsOfSaler.Update(_coupon);
             //Context.CouponsOfCustomer.Add(_coupon2);
