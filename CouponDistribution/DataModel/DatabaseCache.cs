@@ -17,7 +17,14 @@ namespace CouponDistribution.DataModel {
 
         public Dictionary<string, Dictionary<string, CouponOfCustomer>> CouponsOfCustomer { get; set; }
 
+        public Queue<Action> DatabaseOperations { get; set; }
+
+        public Semaphore QueueLock { get; set; }
+
         private DatabaseCache() {
+            DatabaseOperations = new Queue<Action>();
+            QueueLock = new Semaphore(0, 1);
+
             var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
 
             CouponsOfSaler = new Dictionary<string, Dictionary<string, CouponOfSaler>>();
@@ -56,6 +63,15 @@ namespace CouponDistribution.DataModel {
                         CouponsOfCustomer[user.Username] = new Dictionary<string, CouponOfCustomer>();
                     }
                 }
+            }
+
+            new Thread(HandleOperation).Start();
+        }
+
+        public void HandleOperation() {
+            while (true) {
+                QueueLock.WaitOne();
+                DatabaseOperations.Dequeue().Invoke();
             }
         }
     }

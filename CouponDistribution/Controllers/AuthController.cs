@@ -49,11 +49,11 @@ namespace CouponDistribution.Controllers {
                 DatabaseCache.Instance.Users[_user.Username].Authorization = _user.Authorization;
                 DatabaseCache.Instance.HashToUser[_user.Authorization] = _user;
 
-                new Thread(() => {
+                DatabaseCache.Instance.DatabaseOperations.Enqueue(() => {
                     var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
                     context.Users.Update(_user);
                     context.SaveChanges();
-                }).Start();
+                });
 
                 //Context.Users.Update(_user);
                 //Context.SaveChanges();
