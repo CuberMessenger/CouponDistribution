@@ -10,6 +10,20 @@ using CouponDistribution.DataModel;
 using System.Threading;
 
 namespace CouponDistribution.Controllers {
+    public class Page {
+        public int page { get; set; }
+        public Page() {
+        }
+
+        public Page(int page) {
+            this.page = page;
+        }
+
+        public Page(Page p){
+            this.page = p.page;
+        }
+    }
+
     //除用户登录之外的所有api的实现
     [Route("api/[controller]")]
     [ApiController]
@@ -143,8 +157,11 @@ namespace CouponDistribution.Controllers {
 
         //查看优惠券
         [HttpGet("{username}/coupons")]
-        public IActionResult CheckCoupon(string username, [FromHeader]string Authorization, [FromBody]string spage) {
-            int _page = int.Parse(spage.Split('\"')[3]);
+        public IActionResult CheckCoupon(string username, [FromHeader]string Authorization, [FromBody]Page page) {
+            //Console.WriteLine(page);
+            //int _page = int.Parse(page.Split('\"')[3]);
+            //Console.WriteLine(_page);
+            int _page = page.page;
             if (_page <= 0) {
                 return BadRequest(new Dictionary<string, string> { { "errMsg", "The parameter page should be larger than 0." } });
             }
