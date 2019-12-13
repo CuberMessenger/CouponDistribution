@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CouponDistribution", "Coupo
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "StressScript", "StressScript\StressScript.pyproj", "{F6EF0DFE-78E1-457D-811A-417C244A47AA}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{28ACF3F9-F8A2-47DD-8F76-6255B06C4451}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{F33B3890-0906-4F50-B208-3930BBC6B1E9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F6EF0DFE-78E1-457D-811A-417C244A47AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F6EF0DFE-78E1-457D-811A-417C244A47AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28ACF3F9-F8A2-47DD-8F76-6255B06C4451}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28ACF3F9-F8A2-47DD-8F76-6255B06C4451}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28ACF3F9-F8A2-47DD-8F76-6255B06C4451}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28ACF3F9-F8A2-47DD-8F76-6255B06C4451}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
