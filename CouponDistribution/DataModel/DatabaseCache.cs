@@ -71,7 +71,12 @@ namespace CouponDistribution.DataModel {
         public void HandleOperation() {
             while (true) {
                 QueueLock.WaitOne();
-                DatabaseOperations.Dequeue().Invoke();
+                Action action;
+                if (DatabaseOperations.TryDequeue(out action)) {
+                    if (action != null) {
+                        action.Invoke();
+                    }
+                }
             }
         }
     }

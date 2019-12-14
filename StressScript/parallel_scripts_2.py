@@ -343,53 +343,53 @@ class TestCustomer(TaskSet):
 #         else:
 #             print("Error message:" , s.json()["errMsg"])
 
-    @task(1)
-    def get_coupons_info(self):
-        print('[salers] {} | [customers] {} | [coupons] {}'.format(len(salers), len(customers), len(coupons)))
-        searchee_select = random.randint(0, 1)
-        searchee = salers[random.randint(0, len(salers) - 1)] if searchee_select == 1 else customers[random.randint(0, len(customers) - 1)]
-        searcher_select = random.randint(0, 1)
-        searcher = searchee
-        # searcher = salers[random.randint(0, len(salers))] if searchee_select == 1 else customers[random.randint(0, len(customers))]
-        # coupon = coupons[random.randint(0, len(coupons))]
+    # @task(1)
+    # def get_coupons_info(self):
+    #     print('[salers] {} | [customers] {} | [coupons] {}'.format(len(salers), len(customers), len(coupons)))
+    #     searchee_select = random.randint(0, 1)
+    #     searchee = salers[random.randint(0, len(salers) - 1)] if searchee_select == 1 else customers[random.randint(0, len(customers) - 1)]
+    #     searcher_select = random.randint(0, 1)
+    #     searcher = searchee
+    #     # searcher = salers[random.randint(0, len(salers))] if searchee_select == 1 else customers[random.randint(0, len(customers))]
+    #     # coupon = coupons[random.randint(0, len(coupons))]
 
-        url = '/api/users/' + searchee.username + '/coupons'
-        data = MultipartEncoder(fields={"page": "1"})
-        headers = {
-            "Authorization": searcher.authorization,
-            'content-type': "application/json"
-        }
-        g = self.client.get(url, data=json.dumps({'page': '1'}), headers=headers, verify = False)
-        # self.msg = g.status_code
-        # print(g.text)
-        if g.status_code == 204:
-            return
-        print('{} | {} | {}'.format(url, g.json(), searcher.username))
-        if searchee.kind == "saler":
-            if g.status_code == 200:
-                if searcher.kind == "saler":
-                    print("[Sales]" + searcher.username + " <===Coupons=== [Sales]" + searchee.username)
-                elif searcher.kind == "customer":
-                    print("[Customer]" + searcher.username + " <===Coupons=== [Sales]" + searchee.username)
-            elif g.status_code == 204:
-                print("查询商家剩余的优惠券信息，但查询结果为空")
-            elif g.status_code == 401:
-                print("查询商家: {}".format(searcher.username))
-            elif g.status_code == 400:
-                print("查询的用户不存在: {}".format(searchee.username))
-            else:
-                print("服务端错误")
-        else:
-            if g.status_code == 200:
-                print("[Customer] " + searcher.username + " 查询已抢到的优惠券信息")
-            elif g.status_code == 204:
-                print("查询顾客自己已经抢到的优惠券信息，但查询结果为空")
-            elif g.status_code == 401:
-                print("试图访问其他顾客的优惠券列表，认证失败: {}".format(searcher.username))
-            elif g.status_code == 400:
-                print("查询的用户不存在: {}".format(searchee.username))
-            else:
-                print("服务端错误")
+    #     url = '/api/users/' + searchee.username + '/coupons'
+    #     data = MultipartEncoder(fields={"page": "1"})
+    #     headers = {
+    #         "Authorization": searcher.authorization,
+    #         'content-type': "application/json"
+    #     }
+    #     g = self.client.get(url, data=json.dumps({'page': '1'}), headers=headers, verify = False)
+    #     # self.msg = g.status_code
+    #     # print(g.text)
+    #     if g.status_code == 204:
+    #         return
+    #     print('{} | {} | {}'.format(url, g.json(), searcher.username))
+    #     if searchee.kind == "saler":
+    #         if g.status_code == 200:
+    #             if searcher.kind == "saler":
+    #                 print("[Sales]" + searcher.username + " <===Coupons=== [Sales]" + searchee.username)
+    #             elif searcher.kind == "customer":
+    #                 print("[Customer]" + searcher.username + " <===Coupons=== [Sales]" + searchee.username)
+    #         elif g.status_code == 204:
+    #             print("查询商家剩余的优惠券信息，但查询结果为空")
+    #         elif g.status_code == 401:
+    #             print("查询商家: {}".format(searcher.username))
+    #         elif g.status_code == 400:
+    #             print("查询的用户不存在: {}".format(searchee.username))
+    #         else:
+    #             print("服务端错误")
+    #     else:
+    #         if g.status_code == 200:
+    #             print("[Customer] " + searcher.username + " 查询已抢到的优惠券信息")
+    #         elif g.status_code == 204:
+    #             print("查询顾客自己已经抢到的优惠券信息，但查询结果为空")
+    #         elif g.status_code == 401:
+    #             print("试图访问其他顾客的优惠券列表，认证失败: {}".format(searcher.username))
+    #         elif g.status_code == 400:
+    #             print("查询的用户不存在: {}".format(searchee.username))
+    #         else:
+    #             print("服务端错误")
 
     @task(1)
     def get_coupons(self):
@@ -431,4 +431,5 @@ class TestLocust(HttpLocust):
     wait_time = between(3, 6)
 
 if __name__ == '__main__':
+    #locust -f parallel_scripts_2.py --host=http://127.0.0.1:8000
     pass

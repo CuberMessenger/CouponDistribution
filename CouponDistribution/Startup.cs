@@ -54,6 +54,11 @@ namespace CouponDistribution {
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
             });
+
+            var context = new DatabaseContext(new DbContextOptionsBuilder<DatabaseContext>().UseSqlite("Filename=./user.db").Options);
+            if (context.Database.GetPendingMigrations().Any()) {
+                context.Database.Migrate();
+            }
         }
     }
 }
