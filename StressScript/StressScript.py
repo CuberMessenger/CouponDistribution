@@ -3,7 +3,7 @@ import time
 from requests_toolbelt import MultipartEncoder
 import json
 
-baseUrl = "https://localhost:44317"
+baseUrl = "http://localhost:44317"
 userApi = "/api/users"
 authApi = "/api/auth"
 couponsApi = "/coupons"
