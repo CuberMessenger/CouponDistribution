@@ -21,7 +21,13 @@
     <DebugSymbols>true</DebugSymbols>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Re' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <OutputPath>bin\Re\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
+    <Compile Include="locustfile.py" />
     <Compile Include="parallel_scripts_2.py" />
     <Compile Include="StressScript.py" />
   </ItemGroup>

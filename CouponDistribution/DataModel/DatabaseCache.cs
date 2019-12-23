@@ -66,6 +66,7 @@ namespace CouponDistribution.DataModel {
             }
 
             new Thread(HandleOperation).Start();
+            new Thread(HandleOperation).Start();
         }
 
         public void HandleOperation() {
@@ -74,7 +75,14 @@ namespace CouponDistribution.DataModel {
                 Action action;
                 if (DatabaseOperations.TryDequeue(out action)) {
                     if (action != null) {
-                        action.Invoke();
+                        try {
+                            action.Invoke();
+                        }
+                        catch (Exception) {
+                            //throw e;
+                            DatabaseOperations.Enqueue(action);
+                            QueueLock.Release();
+                        }
                     }
                 }
             }
