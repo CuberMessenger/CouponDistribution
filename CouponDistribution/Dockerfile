@@ -18,4 +18,9 @@ RUN dotnet publish "CouponDistribution.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+COPY --from=build /src/CouponDistribution/dummywebconfig .
+
+RUN cp dummywebconfig web.config
+
 ENTRYPOINT ["dotnet", "CouponDistribution.dll"]

@@ -11,7 +11,7 @@ import random
 
 requests.packages.urllib3.disable_warnings()
 
-baseUrl = "http://localhost:58881"
+baseUrl = "http://localhost:20080"
 userApi = "/api/users"
 authApi = "/api/auth"
 couponsApi = "/coupons"
@@ -431,5 +431,5 @@ class TestLocust(HttpLocust):
     wait_time = between(3, 6)
 
 if __name__ == '__main__':
-    #locust -f parallel_scripts_2.py --host=http://127.0.0.1:8000
+    #locust -f parallel_scripts_2.py --host=http://localhost:20080
     pass

@@ -66,7 +66,6 @@ namespace CouponDistribution.DataModel {
             }
 
             new Thread(HandleOperation).Start();
-            new Thread(HandleOperation).Start();
         }
 
         public void HandleOperation() {
